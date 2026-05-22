@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 Collections.emptyList() // Pass user.getAuthorities() here if you have roles
                         );
 
-                // Set request details to token
+                // Set request details to token.
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 // Set token to security context
