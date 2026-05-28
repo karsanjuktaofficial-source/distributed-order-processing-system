@@ -3,6 +3,7 @@ package com.sanjukta.ordersystem.service;
 import com.sanjukta.ordersystem.dto.CreateOrderRequest;
 import com.sanjukta.ordersystem.dto.OrderItemRequest;
 import com.sanjukta.ordersystem.entity.*;
+import com.sanjukta.ordersystem.exception.InsufficientInventoryException;
 import com.sanjukta.ordersystem.exception.ResourceNotFoundException;
 import com.sanjukta.ordersystem.repository.OrderRepository;
 import com.sanjukta.ordersystem.repository.ProductRepository;
@@ -50,11 +51,16 @@ public class OrderService {
         for (OrderItemRequest orderItemRequest : orderItemRequests) {
 
             Product product = productRepository.findById(orderItemRequest.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-            if(product.getQuantity()<orderItemRequest.getQuantity()){
-                throw new RuntimeException("Sorry! Insufficient Stock for: "+product.getProductName());
+            if(product.getAvailableQuantity()<orderItemRequest.getQuantity()){
+                throw new InsufficientInventoryException("Sorry! Insufficient Stock for: "+product.getProductName());
             }
 
-            product.setQuantity(product.getQuantity()-orderItemRequest.getQuantity());
+
+            //available minus requestQuantity
+            //reserved plus requestQuantity
+            product.setAvailableQuantity(product.getAvailableQuantity()-orderItemRequest.getQuantity());
+            product.setReservedQuantity(product.getReservedQuantity()+orderItemRequest.getQuantity());
+            productRepository.save(product);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);

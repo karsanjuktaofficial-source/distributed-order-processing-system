@@ -25,9 +25,15 @@ public class Product {
     private String productDescription;
     @Column(nullable = false)
     private BigDecimal price;
-    @Column(nullable = false)
-    private int quantity;
+
     private LocalDateTime createdAt;
+
+    private Integer availableQuantity;
+
+    private int reservedQuantity;
+
+    @Version
+    private Long version;
 
 
 

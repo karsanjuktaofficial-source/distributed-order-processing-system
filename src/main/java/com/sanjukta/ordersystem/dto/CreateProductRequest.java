@@ -17,6 +17,7 @@ public record CreateProductRequest(
         BigDecimal price,
         @NotNull
         @PositiveOrZero(message="Quantity cannot be lesser that zero!")
-        Integer quantity
+        Integer availableQuantity
+
 ) {
 }

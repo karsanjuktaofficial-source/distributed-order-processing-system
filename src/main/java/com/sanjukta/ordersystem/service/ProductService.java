@@ -55,7 +55,7 @@ public class ProductService {
                 product.getProductName(),
                 product.getProductDescription(),
                 product.getPrice(),
-                product.getQuantity(),
+                product.getAvailableQuantity(),
                 product.getCreatedAt()
         );
     }
@@ -65,8 +65,9 @@ public class ProductService {
         product.setProductName(request.name());
         product.setProductDescription(request.description());
         product.setPrice(request.price());
-        product.setQuantity(request.quantity());
+        product.setAvailableQuantity(request.availableQuantity());
         product.setCreatedAt(LocalDateTime.now());
+        product.setReservedQuantity(0);
 
         return product;
     }
