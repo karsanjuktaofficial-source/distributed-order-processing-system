@@ -37,5 +37,9 @@ public class ProductController {
         return productService.save(request);
     }
 
+    @PostMapping("/addToInventory")
+    public ProductResponse addToInventory(@RequestParam String productName,@RequestParam Integer quantity) {
+        return productService.addToInventory(productName,quantity);
+    }
 
 }
