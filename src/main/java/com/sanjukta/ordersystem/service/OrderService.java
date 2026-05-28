@@ -2,6 +2,7 @@ package com.sanjukta.ordersystem.service;
 
 import com.sanjukta.ordersystem.dto.CreateOrderRequest;
 import com.sanjukta.ordersystem.dto.OrderItemRequest;
+import com.sanjukta.ordersystem.dto.OrderResponse;
 import com.sanjukta.ordersystem.entity.*;
 import com.sanjukta.ordersystem.exception.InsufficientInventoryException;
 import com.sanjukta.ordersystem.exception.ResourceNotFoundException;
@@ -35,7 +36,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrder(CreateOrderRequest request, String username) {
+    public OrderResponse createOrder(CreateOrderRequest request, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         List<OrderItemRequest> orderItemRequests = request.getOrderItemRequests();
@@ -77,7 +78,13 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        return order;
+        OrderResponse orderResponse = new OrderResponse(
+                order.getId(),
+                order.getTotalPrice(),
+                order.getOrderDate(),
+                order.getStatus()
+        );
+        return orderResponse;
     }
 
     private BigDecimal calculateTotalPrice(List<OrderItem> orderItemList) {

@@ -2,11 +2,10 @@ package com.sanjukta.ordersystem.controller;
 
 import com.sanjukta.ordersystem.dto.CreateProductRequest;
 import com.sanjukta.ordersystem.dto.ProductResponse;
-import com.sanjukta.ordersystem.entity.Product;
-import com.sanjukta.ordersystem.repository.ProductRepository;
 import com.sanjukta.ordersystem.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,13 +32,13 @@ public class ProductController {
     }
 
     @PostMapping
-    public ProductResponse save(@Valid @RequestBody CreateProductRequest request) {
-        return productService.save(request);
+    public ResponseEntity<ProductResponse> save(@Valid @RequestBody CreateProductRequest request) {
+        return ResponseEntity.ok(productService.save(request));
     }
 
     @PostMapping("/addToInventory")
-    public ProductResponse addToInventory(@RequestParam String productName,@RequestParam Integer quantity) {
-        return productService.addToInventory(productName,quantity);
+    public ResponseEntity<ProductResponse> addToInventory(@RequestParam String productName, @RequestParam Integer quantity) {
+        return ResponseEntity.ok(productService.addToInventory(productName,quantity));
     }
 
 }
