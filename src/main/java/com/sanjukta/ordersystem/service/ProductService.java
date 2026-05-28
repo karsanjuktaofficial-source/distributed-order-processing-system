@@ -6,8 +6,11 @@ import com.sanjukta.ordersystem.entity.Product;
 import com.sanjukta.ordersystem.exception.ResourceNotFoundException;
 import com.sanjukta.ordersystem.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,6 +43,7 @@ public class ProductService {
         List<Product> products = productRepository.findAll();
         return products.stream().map(this::mapToResponse).toList();
     }
+
     public ProductResponse save(CreateProductRequest request) {
         Product p = productRepository.findByProductName(request.name());
 
@@ -50,12 +54,28 @@ public class ProductService {
         return mapToResponse(productRepository.save(mapToEntity(request)));
     }
 
+    public ProductResponse addToInventory(String productName, Integer quantity) {
+
+        Product product;
+        try{
+            product = productRepository.findByProductName(productName);
+            product.setAvailableQuantity(quantity+product.getAvailableQuantity());
+            productRepository.save(product);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("Product not found!");
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return mapToResponse(product);
+    }
+
     public ProductResponse mapToResponse(Product product) {
         return new ProductResponse(product.getId(),
                 product.getProductName(),
                 product.getProductDescription(),
                 product.getPrice(),
-                product.getQuantity(),
+                product.getAvailableQuantity(),
                 product.getCreatedAt()
         );
     }
@@ -65,8 +85,9 @@ public class ProductService {
         product.setProductName(request.name());
         product.setProductDescription(request.description());
         product.setPrice(request.price());
-        product.setQuantity(request.quantity());
+        product.setAvailableQuantity(request.availableQuantity());
         product.setCreatedAt(LocalDateTime.now());
+        product.setReservedQuantity(0);
 
         return product;
     }

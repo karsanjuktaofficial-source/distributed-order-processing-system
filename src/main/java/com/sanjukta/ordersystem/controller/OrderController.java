@@ -1,8 +1,10 @@
 package com.sanjukta.ordersystem.controller;
 
 import com.sanjukta.ordersystem.dto.CreateOrderRequest;
+import com.sanjukta.ordersystem.dto.OrderResponse;
 import com.sanjukta.ordersystem.entity.Order;
 import com.sanjukta.ordersystem.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,10 +30,10 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest request, Authentication authentication) {
-  //      System.out.println(authentication.toString());
-        Order order = orderService.createOrder(request, authentication.getName());
-        return ResponseEntity.ok().body(order);
-
+    public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody CreateOrderRequest request, Authentication authentication) {
+        return ResponseEntity.ok()
+                .body(orderService.createOrder(request, authentication.getName()));
     }
+
+
 }
