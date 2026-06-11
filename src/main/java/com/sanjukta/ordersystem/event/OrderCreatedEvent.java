@@ -19,5 +19,5 @@ public class OrderCreatedEvent {
     private Long customerId;
     private BigDecimal totalAmount;
     private LocalDateTime createdAt;
-    private OrderStatus status;
+    //private OrderStatus status;
 }

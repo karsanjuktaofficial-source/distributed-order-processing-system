@@ -89,8 +89,8 @@ public class OrderService {
                 savedOrder.getId(),
                 savedOrder.getUser().getId(),
                 savedOrder.getTotalPrice(),
-                savedOrder.getOrderDate(),
-                savedOrder.getStatus()
+                savedOrder.getOrderDate()//,
+                //savedOrder.getStatus()
         );
 
         log.info(
