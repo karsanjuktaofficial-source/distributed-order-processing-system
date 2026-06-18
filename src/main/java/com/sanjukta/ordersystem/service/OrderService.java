@@ -4,12 +4,15 @@ import com.sanjukta.ordersystem.dto.CreateOrderRequest;
 import com.sanjukta.ordersystem.dto.OrderItemRequest;
 import com.sanjukta.ordersystem.dto.OrderResponse;
 import com.sanjukta.ordersystem.entity.*;
+import com.sanjukta.ordersystem.event.OrderCreatedEvent;
 import com.sanjukta.ordersystem.exception.InsufficientInventoryException;
 import com.sanjukta.ordersystem.exception.ResourceNotFoundException;
+import com.sanjukta.ordersystem.producer.OrderEventProducer;
 import com.sanjukta.ordersystem.repository.OrderRepository;
 import com.sanjukta.ordersystem.repository.ProductRepository;
 import com.sanjukta.ordersystem.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class OrderService {
 
@@ -24,10 +28,13 @@ public class OrderService {
     private ProductRepository productRepository;
     private UserRepository userRepository;
 
-    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository) {
+    private final OrderEventProducer orderEventProducer;
+
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository,OrderEventProducer orderEventProducer) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.orderEventProducer = orderEventProducer;
     }
 
     public List<Order> getAllOrders() {
@@ -76,13 +83,28 @@ public class OrderService {
         order.setOrderItems(orderItemList);
         order.setTotalPrice(calculateTotalPrice(orderItemList));
 
-        orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(
+                savedOrder.getId(),
+                savedOrder.getUser().getId(),
+                savedOrder.getTotalPrice(),
+                savedOrder.getOrderDate()//,
+                //savedOrder.getStatus()
+        );
+
+        log.info(
+                "Publishing ORDER_CREATED event for order {}",
+                savedOrder.getId()
+        );
+
+        orderEventProducer.publishOrderCreatedEvent(orderCreatedEvent);
 
         OrderResponse orderResponse = new OrderResponse(
-                order.getId(),
-                order.getTotalPrice(),
-                order.getOrderDate(),
-                order.getStatus()
+                savedOrder.getId(),
+                savedOrder.getTotalPrice(),
+                savedOrder.getOrderDate(),
+                savedOrder.getStatus()
         );
         return orderResponse;
     }
